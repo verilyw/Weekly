@@ -97,3 +97,124 @@ s.clear() // error,
 
 
 
+### Enum vs. Struct
+
++ defining
+
+  + 类型名
+
+  + 成员 --> 任何类型
+
++ 枚举是一个类型，它包含所有可能的枚举成员。枚举值是该类型中具有某个成员的实例。
+
++ 任何类型都可以放入枚举成员
+
+1. 同一化类型
+
+2. Option处理空值
+
+   ```rust
+   enum Option<T> {
+       Some(T),
+       None,
+   }
+   ```
+
+如果需要使用Option<T>的值，使用`match`来进行处理。
+
+### enum and match
+
+match is useful and powerful control flow construct.
+
+```rust
+match value {
+    pattern => expression,
+    pattern => expression,
+}
+```
+
++ pattern that bind to values
++ match are Exhaustive，穷尽所有情况
+  + catch-all patterns and `_`Placeholder
+
++ concice control flow --- `if let`
++ destructing to Break Apart Values
+  1. structs
+  2. enum
+  3. nested struct and enum
+  4. struct and tuple
++ ignore values in a pattern
+  + entire value
+  + parts of a value, `_`
+  + unused variable, `_xx`
+  + remaining parts, `..`
+
++ multiple patterns
+  + `v1 | v2`
+  + `x..=y`
+
+## Module system
+
+> Why Module?
+>
+> Manage growing projects with packages, creates and modules
+
++ Package -- A cargo feature that let you build, test and share crates.
+  + `.toml`file that describes how ot build crates
++ Crates  -- A **tree of modules** that produces a lib or execute.
+  + library crate
+  + binary crate  -- has "main" function, can run.
++ Modules and use -- let you control the orgnization, scope, privace of paths.
++ Path  -- A way of naming an item. such as a struct, function, module.
+
+ ## Collcetion
+
++ Vector
++ Hash Map
++ String
+
+1. Vector
+
+   1. 创建
+      1. use associated function, `Vec::new()`
+      2. macro, `vec!`
+   2. 更新
+      1. push
+   3. 访问
+      1. 下标
+      2. `get`, 返回`Option<&T>`,故要额外的match来解构值
+      3. 当对vec进行修改的时候，注意<u>元素引用</u>*（借用）
+2. HashMap
+
+   1. 创建
+
+      + `HashMap::new()`, then insert
+
+      + collet方法和迭代器
+
+        + `let team_map: HashMap<_, _> = team_list.into_iter().collect();`
+        + 这里注意要指定`HaspMap<_, _>`类型
+      
+   2. 所有权转移
+
+        + 类型实现Copy特征，无所谓所有权
+        + 类型未实现Copy特征，转移给HashMap
+        + 若使用引用类型放入HashMap中，确保该引用生命周期至少与hash mapy一样长
+
+   3. HashMap中的K和V都具有**内聚性**，即保证各自类型都要相同。
+
+   3. 更新
+   
+      1. 覆盖已有值， `insert`
+      2. 查询key对应值，若不存在则插入新值，存在则不会插入新值
+           1. `let count = map.entry(word).or_insert(0);`
+           2. `or_insert`返回&mut v, 故可以修改对应值
+           3. 使用count引用时，要先进行解引用“*count", 否则出现类型不匹配。
+3. String
+   1. `format!`
+   2. don't support indexing, because of internal representation
+   3. `&str` vs. `String`
+      1. `to_string`, `to_owned`, `into`
+      2. slice, `&s[..]`, `&s[0..3]` indexing by bytes, sometimes, when passing parameter, `&s`(s is String type) will automatically convert to `&str`type
+   4. other function, `push_str`, `replace`, etc.
+
