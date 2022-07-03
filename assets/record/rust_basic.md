@@ -218,3 +218,170 @@ match value {
       2. slice, `&s[..]`, `&s[0..3]` indexing by bytes, sometimes, when passing parameter, `&s`(s is String type) will automatically convert to `&str`type
    4. other function, `push_str`, `replace`, etc.
 
+## 错误处理
+
+   + 可恢复错误，一般是操作错误等不影响全局和系统。
+
+     + `Result<T, E>`
+
+       + ```rust
+         enum Result<T, E> {
+             Ok(T),
+             Err(E),
+         }
+         ```
+
+       + 处理返回的方法
+
+         + `unwrap` and `expect`。成功返回值，失败panic
+         + expect更加常用，因为可以带上错误提示
+
+       + 比如用来处理I/O错误等
+
+   + 不可恢复错误，系统性错误。
+
+     + `panic!`
+       + 栈展开（default)
+       + 直接终止, `#[profile.release]`以及`panic="abort"`
+     + 线程panic，终止该子线程。
+     + 调用`panic!`会发生什么
+       1. 格式化panic信息，`std::panic::any_panic`
+       2. panic hook
+       3. stack backtrace
+
+   + [Propagating Errors](https://doc.rust-lang.org/book/ch09-02-recoverable-errors-with-result.html#propagating-errors)
+
+     + `？`
+     + 需要一个变量来承载正确值
+
+   + map_err
+
+
+
+## Generic
+
+> Why generic?
+>
+> make code flexible, prevent code duplication
+
++ In struct definition
+
+  + ```rust
+    struct Point<T> {
+        x: T,
+        y: T,
+    }
+    
+    // multiple type
+    struct Point<T, U> {
+        x: T,
+        y: U,
+    }
+    ```
+
++ In enum definition
+
+  + `Option<T>`
+  + `Result<T, E>`
+
++ In Method definition
+
+  + ```rust
+    impl<T> Point<T> {
+        fn x<T>(&self) -> &T {
+            &self.x
+        }
+    }
+    ```
+
++ Bounds
+
+  + working with generic, the type parameters often must use traits as bounds to stipulate what functionlity a type implements.
+  + multple bounds
+    + `T: Debug + Display`, Debug和Display都是特征。
+  + `where`
+    + more expressive
+
+## Trait
+
++ 特征，共享行为
+
+  + `Debug`
+  + `Display`
+
++ defining
+
+  + ```rust
+    pub trait <TraitName> {
+        // method(function)
+        fn func_name(self) -> Self;
+    }
+    ```
+
++ implement a trait on a type
+
+  + ```rust
+    impl <TraitName> for <TypeName> {
+        
+    } 
+    
+    // simple 
+    impl Summary for Article {
+        
+    }
+    
+    impl Summary for Tweet {
+        
+    }
+    
+    ```
+
++ Default implementation
+
+  + defualt behavior for some of the methods.
+
++ trait as Parameters
+
+  + `(item: &impl Summary)`
+
++ Returning types the implement trait
+
+  + we can return some types that implements the [TraitName] trait without naming concret types
+  + **However, you can only use it if returning a single type**
+
+
+## Test
+
++ how to write
+
+  1. set up state or data
+  2. run code you want to test
+  3. assert the result are what you expect
+
+  
+
++ ```rust
+  #[cfg(test)]
+  mode tests {
+      // use super::*
+      
+      #[test]
+      fn test_func() {
+          //...
+      }
+  }
+  ```
+
++ check the result with the `assert!` macro
+
+  + `assert!`
+  + `assert_eq`
+  + `assert_ne`
+
++ adding cutom failture messages
+
++ `should_panic` under `#[test]`
+
+  + get helpful message
+
++ `Result<T, E>` in Test
