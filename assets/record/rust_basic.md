@@ -346,7 +346,7 @@ match value {
 
 + Returning types the implement trait
 
-  + we can return some types that implements the [TraitName] trait without naming concret types
+  + we can return some types that implements the "TraitName" trait without naming concret types
   + **However, you can only use it if returning a single type**
 
 
@@ -375,8 +375,8 @@ match value {
 + check the result with the `assert!` macro
 
   + `assert!`
-  + `assert_eq`
-  + `assert_ne`
+  + `assert_eq!`
+  + `assert_ne!`
 
 + adding cutom failture messages
 
@@ -385,3 +385,228 @@ match value {
   + get helpful message
 
 + `Result<T, E>` in Test
+
+## Closure
+
++ closure are functions that can capture the enclosing envirment
+
++ ```rust
+  |val| val + x
+  
+  // val: input variable
+  // x: capture x variable
+  ```
+
+  + `||`, using `||` instead of `()` around input variables
+  + optinal body delimination({}) for single expression
+  + the ability to capture the other envirnment variables.
+
++  Captures
+
+  + by reference, `&T`
+  + by mutable reference. `&mut T`
+  + by value. `T`
+
++ 类型推导
+
+  + 当编译器推导一种类型，他就会一直使用该类型
+
++ `Fn`特征
+
+  + `FnOnce`, 会拿走捕获变量的所有权（注：实现`Copy`特征的其实是拷贝）
+  + `FnMut`, 以可变借用捕获环境中的值
+  + `Fn`, 以不可变借用捕获环境中的值
+
++ **一个闭包实现那种`Fn`特征取决于该闭包如何使用被捕获变量，而不是取决于如何捕获它们**
+
+  + `move`强调闭包如何实现捕获
+
++ 一个闭包并不仅仅实现某一种`Fn`特征。它是链式的。
+
++ 闭包作为返回值
+
+  + Rust要求函数的返回参数和返回类型必须有固定内存大小
+  + `Box<dyn Fn(i32)->i32>`
+
+## Iterator
+
++ 惰性初始化
+
++ next method
+
+  + ```rust
+    pub trait Iterator {
+        Type Item;
+        fn next(&mut self) -> Option<Self::Item>;
+    }
+    ```
+
++ Adaptor
+
+  + consuming adaptor
+    + 调用`next`
+    + 返回一个值
+    + 消耗迭代器上的元素。如，`sum`，它会拿走迭代器所有权。
+    + `collect`, 常用，将一个迭代器中元素收集到指定类型
+  + iterator adaptor
+    + 返回一个新的迭代器，**实现链式方法调用的关键，如`v.iter().map().filter()...`**
+    + **Lazy**, 意味着要一个消费适配器来收尾，最终返回一个值
+    + `map`, `zip`, `filter`
+
++ **Iterator vs. IntoIterator(✳)**
+
+  + Iterator， 迭代器特征，只有实现了它，才能称为迭代器，才能调用`next`.
+  + IntoIterator, 强调某一类型(可以是迭代器)如果实现该特征，它可以通过`into_iter`, `iter`等方法变成一个迭代器
+
++ 创建自己的迭代器 —— 只要为自定义类型实现 `Iterator` 特征即可
+
+  + ```rust
+    struct counter {
+        count: u32,
+    }
+    
+    impl Counter {
+        fn new() -> Counter {
+            Counter {
+                count: 0
+            }
+        }
+    }
+    
+    impl Iterator for Counter {
+        Type Item = u32;
+        fn next(&mut self) -> Option<Self::Item> {
+            if self.count < 5 {
+                self.count += 1;
+                Some(self.count)
+            } else {
+                None
+            }
+        }
+    }
+    ```
+
+  + 其他Iterator特征方法默认实现，因为这些默认方法都是基于next实现的。
+
++ 迭代器是Rust的零成本抽象之一
+
+  + What you do use, you couldn’t hand code any better
+
+
+
+## Box<T>
+
+> point to Data on the heap
+
++ puting a single value on the heap isn't useful. `let a = Box::new(5))`
+
++ enabling **Recursive Types* with Boxes*
+
+  + Cons list, (1, (2, (3, Nil)))
+
+    + a cons list contain two item
+      + the value of current item
+      + the next item
+    + it should have definite size. Box<T> to get a Recursive Type with known size
+
+  + ```rust
+    enum List {
+        Cons(i32, Box<List>),
+        Nil
+    }
+    ```
+
++ `Box<T>` type is a smart pointer because it implement "Deref" trait
+
+## Thread
+
++ create a new thread
+
+  + `spawn`
+  + with closure
+  + using `move` closures, (take ownership)
++ wait
+
+  + join
++ Using massage passing to transfer data
+
+  + channel -- message-sending in rust
+    + **transmitter**
+    + **receiver**
+  + mpsc
+    + `let (tx, rx) = mpsc::channel();`
+  + channels and ownership transfernce
+    + `send()`, take ownership if its parameters
+  + send multiple values and seeing receiver waiting
+    + clone transmitter
++ Share-state Concurrency, (another way of handling concurrency)
+
+  + mutex
+
+    + using `new()` to create
+    + `lock()` to acquire the lock
+    + `Mutex<T>` is a smart pointer
+  + multiple owership with multiple threads
+    + `Rc<T>`, create a refernce counted value
+      + it is not safe to share across threads
+    + `Arc<T>`, Atomic Reference Type
+
+## Macro
+
++ 声明式宏： `macro_rules!`
+
++ 过程宏
+
+  + #[derive]， 派生宏
+  + 类属性宏
+  + 类函数宏
+
++ 宏 vs. 函数
+
+  + 元编程
+  + 可变参数
+  + 宏展开
+  + 复杂，难以维护
+
++ ```rust
+  #[macro_export]
+  macro_rules! vec {
+      ($($x:expr), *) {
+          {
+              let mut temp_vec = Vec::new();
+              ${
+                temp_vec.push($x);  
+              }*
+              temp_vec
+          }
+      };
+  }
+  ```
+
+
+
+## Type Conversion
+
+* as
+* try_into
+  * 拥有完全控制而不依赖内置转换
+  * 返回一个`Result`
+* 通用类型转换
+  * `as`和`try_into`只能应用在数值类型上
+
+---
+
++ Rust also offers traits that facilitate type conversions upon implementation. These traits can be found under the [`convert`](https://doc.rust-lang.org/std/convert/index.html) module.
+
+  The traits are the following:
+
+  - `From` and `Into` covered in `from_into`
+
+  - `TryFrom` and `TryInto` covered in `try_from_into`
+
+  - `AsRef` and `AsMut` covered in `as_ref_mut`
+
+  
+
++ Furthermore, the `std::str` module offers a trait called [`FromStr`](https://doc.rust-lang.org/std/str/trait.FromStr.html) which helps with converting strings into target types via the `parse` method on strings. If properly implemented for a given type `Person`, then `let p: Person = "Mark,20".parse().unwrap()` should both compile and run without panicking.
+
