@@ -11,6 +11,7 @@ For OS Training Camp 2022
 + ~~2022-07-07~~
 + [2022-07-08](./schedule/2022-7-8.md)
 + [2022-07-09](./schedule/2022-7-9.md)
++ [2022-07-10](./schedule/2022-7-10.md)
 
 ## Code repo
 
