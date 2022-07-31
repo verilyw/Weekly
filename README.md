@@ -20,6 +20,9 @@ For OS Training Camp 2022
 + ~~2022-07-16~~
 + [2022-7-17](./schedule/2022-7-17.md)
 
+| 由于后续的时间不充分和其他安排，每天做的事情也基本都花在实验上，所以写了一个实验总结。
+
 ## Code repo
 
 + [rustlings](https://github.com/wanderya/rustlings)
++ [实验总结](./schedule/LabSummary.md)
